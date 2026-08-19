@@ -193,7 +193,7 @@ export default async function AdminDashboard() {
                     <span className="text-slate-400">clocked {log.type.toLowerCase()}</span>
                   </div>
                   <span className="text-xs text-slate-400">
-                    {new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    {new Date(log.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })}
                   </span>
                 </div>
               ))}

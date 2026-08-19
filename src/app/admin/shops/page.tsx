@@ -12,10 +12,7 @@ type Shop = {
   id: string
   name: string
   address: string
-  locationLat: number
-  locationLng: number
   allowedIp: string
-  radiusMeters: number
 }
 
 export default function AdminShopsPage() {
@@ -93,7 +90,7 @@ export default function AdminShopsPage() {
   }
 
   const handleAddNew = () => {
-    setFormData({ radiusMeters: 100 })
+    setFormData({})
     setIsEditing(null)
     setShowForm(true)
   }
@@ -136,24 +133,6 @@ export default function AdminShopsPage() {
                   value={formData.address || ''} 
                   onChange={e => setFormData({...formData, address: e.target.value})}
                 />
-                
-                <Input 
-                  label="Latitude"
-                  type="number"
-                  step="any"
-                  placeholder="6.9271" 
-                  value={formData.locationLat || ''} 
-                  onChange={e => setFormData({...formData, locationLat: parseFloat(e.target.value)})}
-                />
-                
-                <Input 
-                  label="Longitude"
-                  type="number"
-                  step="any"
-                  placeholder="79.8612" 
-                  value={formData.locationLng || ''} 
-                  onChange={e => setFormData({...formData, locationLng: parseFloat(e.target.value)})}
-                />
 
                 <div className="space-y-1.5">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
@@ -170,15 +149,6 @@ export default function AdminShopsPage() {
                   </div>
                   <p className="text-xs text-slate-500">Employees must be connected to this IP to clock in.</p>
                 </div>
-                
-                <Input 
-                  label="GPS Radius (meters)"
-                  type="number"
-                  required
-                  placeholder="100" 
-                  value={formData.radiusMeters || ''} 
-                  onChange={e => setFormData({...formData, radiusMeters: parseInt(e.target.value)})}
-                />
               </div>
               
               <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">
@@ -232,10 +202,6 @@ export default function AdminShopsPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-slate-500 font-medium">Network IP:</span>
                     <Badge variant="secondary" className="font-mono text-xs bg-white border-slate-200">{shop.allowedIp}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-500 font-medium">Radius:</span>
-                    <span className="font-semibold text-slate-700">{shop.radiusMeters}m</span>
                   </div>
                 </div>
               </CardContent>

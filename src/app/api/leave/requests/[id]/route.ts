@@ -80,6 +80,34 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       return updatedRequest
     })
 
+    // Notify Employee
+    if (result && result.user) {
+      const { sendNotificationEmail } = await import('@/lib/mail')
+      
+      const type = validatedData.status === 'APPROVED' ? 'LEAVE_APPROVED' : 'LEAVE_REJECTED'
+      const title = `Leave Request ${validatedData.status === 'APPROVED' ? 'Approved' : 'Rejected'}`
+      
+      // In-app Notification
+      await prisma.notification.create({
+        data: {
+          userId: result.userId,
+          title,
+          message: `Your leave request for ${result.totalDays} day(s) of ${result.leaveType.name} has been ${validatedData.status.toLowerCase()}.`,
+          type
+        }
+      })
+      
+      // Email Notification
+      await sendNotificationEmail({
+        to: result.user.email,
+        subject: `${title} - PhoneShop HRM`,
+        html: `<p>Hello <strong>${result.user.name}</strong>,</p>
+               <p>Your leave request for ${result.totalDays} day(s) of ${result.leaveType.name} has been <strong>${validatedData.status}</strong>.</p>
+               ${validatedData.approverNote ? `<p><strong>Note:</strong> ${validatedData.approverNote}</p>` : ''}
+               <p>Please log in to the HRM system for more details.</p>`
+      })
+    }
+
     return NextResponse.json(result)
   } catch (error) {
     if (error instanceof z.ZodError) {

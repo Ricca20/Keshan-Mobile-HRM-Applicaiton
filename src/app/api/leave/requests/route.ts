@@ -118,6 +118,36 @@ export async function POST(req: Request) {
       }
     })
 
+    // Notify Admins
+    const admins = await prisma.user.findMany({ where: { role: 'ADMIN', isActive: true } })
+    const employee = await prisma.user.findUnique({ where: { id: userId } })
+    
+    if (admins.length > 0 && employee) {
+      const { sendNotificationEmail } = await import('@/lib/mail')
+      
+      for (const admin of admins) {
+        // In-app Notification
+        await prisma.notification.create({
+          data: {
+            userId: admin.id,
+            title: 'New Leave Request',
+            message: `${employee.name} has requested ${totalDays} day(s) of leave.`,
+            type: 'LEAVE_REQUEST'
+          }
+        })
+        
+        // Email Notification
+        await sendNotificationEmail({
+          to: admin.email,
+          subject: 'New Leave Request - PhoneShop HRM',
+          html: `<p><strong>${employee.name}</strong> has requested ${totalDays} day(s) of leave.</p>
+                 <p><strong>Reason:</strong> ${validatedData.reason}</p>
+                 <p><strong>Dates:</strong> ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}</p>
+                 <p>Please log in to the HRM system to review.</p>`
+        })
+      }
+    }
+
     return NextResponse.json(leaveRequest)
   } catch (error) {
     if (error instanceof z.ZodError) {

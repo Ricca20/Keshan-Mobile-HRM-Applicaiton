@@ -18,6 +18,8 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { VerificationListener } from '@/components/verification/VerificationListener'
 
 const navItems = [
   { label: 'Dashboard', href: '/employee/dashboard', icon: LayoutDashboard },
@@ -150,6 +152,7 @@ export default function EmployeeLayout({
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
+          <NotificationBell />
           <span className="text-sm font-semibold text-slate-500 hidden sm:block">
             {new Date().toLocaleDateString('en-US', {
               weekday: 'long',
@@ -165,6 +168,9 @@ export default function EmployeeLayout({
           {children}
         </main>
       </div>
+
+      {/* Global verification listener */}
+      <VerificationListener />
     </div>
   )
 }

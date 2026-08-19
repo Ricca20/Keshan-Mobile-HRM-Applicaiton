@@ -6,10 +6,7 @@ import { z } from 'zod'
 const shopSchema = z.object({
   name: z.string().min(1, 'Shop name is required'),
   address: z.string().min(1, 'Address is required'),
-  locationLat: z.number().default(0),
-  locationLng: z.number().default(0),
   allowedIp: z.string().min(7, 'A valid IP address is required'),
-  radiusMeters: z.number().default(100),
 })
 
 export async function PUT(
@@ -52,12 +49,11 @@ export async function DELETE(
   try {
     const { id } = await params
     
-    // Check if shop has users or shifts
     const shop = await prisma.shop.findUnique({
       where: { id },
       include: {
         _count: {
-          select: { users: true, shifts: true, clockLogs: true }
+          select: { users: true, clockLogs: true }
         }
       }
     })
@@ -66,9 +62,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Shop not found' }, { status: 404 })
     }
 
-    if (shop._count.users > 0 || shop._count.shifts > 0 || shop._count.clockLogs > 0) {
+    if (shop._count.users > 0 || shop._count.clockLogs > 0) {
       return NextResponse.json(
-        { error: 'Cannot delete shop with existing employees, shifts, or logs.' },
+        { error: 'Cannot delete shop with existing employees or logs.' },
         { status: 400 }
       )
     }

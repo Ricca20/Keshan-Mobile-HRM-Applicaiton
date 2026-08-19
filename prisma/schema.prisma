@@ -21,15 +21,16 @@ model User {
   salary        Float     @default(0)
   phone         String?
   address       String?
+  penaltyPoints Int       @default(0)
 
-  shopId        String
-  shop          Shop      @relation(fields: [shopId], references: [id])
-
-  shifts        Shift[]
+  shopId        String?
+  shop          Shop?     @relation(fields: [shopId], references: [id])
   clockLogs     ClockLog[]
   leaveRequests LeaveRequest[]
   leaveBalances LeaveBalance[]
   paySheets     PaySheet[]
+  notifications Notification[]
+  verifications WorkVerification[]
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -44,34 +45,13 @@ model Shop {
   id           String   @id @default(cuid())
   name         String
   address      String
-  locationLat  Float
-  locationLng  Float
   allowedIp    String
-  radiusMeters Int      @default(100)
 
   users        User[]
-  shifts       Shift[]
   clockLogs    ClockLog[]
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-}
-
-model Shift {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  shopId      String
-  shop        Shop     @relation(fields: [shopId], references: [id])
-  date        DateTime @db.Date
-  startTime   String   // "08:00"
-  endTime     String   // "17:00"
-  notes       String?
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([userId, date])
 }
 
 model ClockLog {
@@ -82,8 +62,6 @@ model ClockLog {
   shop         Shop        @relation(fields: [shopId], references: [id])
   type         ClockType
   timestamp    DateTime    @default(now())
-  gpsLat       Float?
-  gpsLng       Float?
   ipAddress    String
   isValid      Boolean     @default(false)
   flagReason   String?     // "GPS_FAIL" | "IP_FAIL" | "BOTH_FAIL" | null
@@ -177,4 +155,36 @@ model PaySheet {
 enum PaySheetStatus {
   DRAFT
   FINALIZED
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String   // "LEAVE_REQUEST", "LEAVE_APPROVED", "LEAVE_REJECTED", "PAYROLL"
+  isRead    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WorkVerification {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      VerificationStatus @default(PENDING)
+  sentAt      DateTime @default(now())
+  expiresAt   DateTime
+  verifiedAt  DateTime?
+  
+  @@index([userId])
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  MISSED
+  PENALIZED
 }

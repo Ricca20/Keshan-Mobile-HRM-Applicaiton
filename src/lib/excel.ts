@@ -5,7 +5,7 @@ type ExportablePaysheet = {
     name: string
     shop: {
       name: string
-    }
+    } | null
   }
   month: number
   year: number
@@ -21,7 +21,7 @@ type ExportablePaysheet = {
 export function generatePaysheetExcel(paysheets: ExportablePaysheet[]): Buffer {
   const rows = paysheets.map(p => ({
     'Employee': p.user.name,
-    'Shop': p.user.shop.name,
+    'Shop': p.user.shop?.name || 'Unassigned',
     'Month': `${p.month}/${p.year}`,
     'Base Salary': p.baseSalary.toFixed(2),
     'Paid Days': p.paidDays,

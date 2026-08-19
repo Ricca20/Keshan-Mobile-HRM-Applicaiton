@@ -1,0 +1,96 @@
+import { prisma } from '@/lib/prisma'
+import { NextResponse } from 'next/server'
+import { sendNotificationEmail } from '@/lib/mail'
+
+export async function GET(req: Request) {
+  // Optional: Check a cron secret token here
+  // if (req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) { ... }
+
+  try {
+    const now = new Date()
+
+    // 1. Expire old pending verifications
+    const expiredVerifications = await prisma.workVerification.findMany({
+      where: {
+        status: 'PENDING',
+        expiresAt: { lt: now }
+      },
+      include: { user: true }
+    })
+
+    if (expiredVerifications.length > 0) {
+      await prisma.workVerification.updateMany({
+        where: {
+          id: { in: expiredVerifications.map(v => v.id) }
+        },
+        data: { status: 'MISSED' }
+      })
+
+      // Notify Admins about missed verifications
+      const admins = await prisma.user.findMany({ where: { role: 'ADMIN', isActive: true } })
+      for (const v of expiredVerifications) {
+        for (const admin of admins) {
+          await prisma.notification.create({
+            data: {
+              userId: admin.id,
+              title: 'Missed Work Verification',
+              message: `${v.user.name} missed their active work verification.`,
+              type: 'VERIFICATION_MISSED'
+            }
+          })
+          
+          await sendNotificationEmail({
+            to: admin.email,
+            subject: 'Missed Work Verification - PhoneShop HRM',
+            html: `<p><strong>${v.user.name}</strong> missed a random active work verification check at ${now.toLocaleTimeString()}.</p>
+                   <p>Please review this in the admin dashboard and assign a penalty point if necessary.</p>`
+          })
+        }
+      }
+    }
+
+    // 2. Randomly trigger new verifications for clocked-in users
+    const users = await prisma.user.findMany({
+      where: { role: 'EMPLOYEE', isActive: true },
+      select: { 
+        id: true, 
+        name: true, 
+        email: true, 
+        clockLogs: { orderBy: { timestamp: 'desc' }, take: 1 } 
+      }
+    })
+
+    const clockedInUsers = users.filter(u => u.clockLogs.length > 0 && u.clockLogs[0].type === 'IN')
+
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+
+    for (const user of clockedInUsers) {
+      // 30% chance to trigger a check
+      if (Math.random() < 0.3) {
+        const expiresAt = new Date(now.getTime() + 60 * 1000 * 2) // 2 minutes window
+        
+        const verification = await prisma.workVerification.create({
+          data: {
+            userId: user.id,
+            expiresAt
+          }
+        })
+
+        // Send Email
+        await sendNotificationEmail({
+          to: user.email,
+          subject: 'URGENT: Active Work Verification',
+          html: `<p>Hello <strong>${user.name}</strong>,</p>
+                 <p>This is a random active work verification check.</p>
+                 <p>Please click the button below within <strong>2 minutes</strong> to confirm you are actively working.</p>
+                 <a href="${baseUrl}/verify/${verification.id}" style="display:inline-block;padding:10px 20px;background-color:#3b82f6;color:white;text-decoration:none;border-radius:5px;font-weight:bold;">Verify Now</a>`
+        })
+      }
+    }
+
+    return NextResponse.json({ success: true, processed: expiredVerifications.length, checked: clockedInUsers.length })
+  } catch (error) {
+    console.error('Cron Error:', error)
+    return NextResponse.json({ error: 'Failed to process verifications' }, { status: 500 })
+  }
+}

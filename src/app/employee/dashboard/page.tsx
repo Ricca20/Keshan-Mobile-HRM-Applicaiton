@@ -19,10 +19,10 @@ export default async function EmployeeDashboard() {
   const isClockedIn = lastLog?.type === 'IN'
   const shopName = lastLog?.shop?.name || 'Assigned Shop'
 
-  // 2. This Week's Shifts (Clock Ins in last 7 days)
+  // 2. This Week's Attendance (Clock Ins in last 7 days)
   const sevenDaysAgo = new Date()
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-  const recentShifts = await prisma.clockLog.count({
+  const recentDays = await prisma.clockLog.count({
     where: {
       userId,
       type: 'IN',
@@ -143,11 +143,11 @@ export default async function EmployeeDashboard() {
               </div>
               <div className="mt-auto">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-black text-slate-900 tracking-tighter">{recentShifts}</span>
-                  <span className="text-lg font-medium text-slate-500">shifts</span>
+                  <span className="text-5xl font-black text-slate-900 tracking-tighter">{recentDays}</span>
+                  <span className="text-lg font-medium text-slate-500">days</span>
                 </div>
                 <div className="w-full bg-slate-100 h-1.5 rounded-full mt-4 overflow-hidden">
-                  <div className="bg-blue-500 h-full rounded-full" style={{ width: `${Math.min((recentShifts / 5) * 100, 100)}%` }}></div>
+                  <div className="bg-blue-500 h-full rounded-full" style={{ width: `${Math.min((recentDays / 5) * 100, 100)}%` }}></div>
                 </div>
               </div>
             </div>

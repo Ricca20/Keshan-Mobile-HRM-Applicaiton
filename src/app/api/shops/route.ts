@@ -6,10 +6,7 @@ import { z } from 'zod'
 const shopSchema = z.object({
   name: z.string().min(1, 'Shop name is required'),
   address: z.string().min(1, 'Address is required'),
-  locationLat: z.number().default(0), // Simplified, no complex location tracking needed
-  locationLng: z.number().default(0),
   allowedIp: z.string().min(7, 'A valid IP address is required'),
-  radiusMeters: z.number().default(100),
 })
 
 export async function GET() {

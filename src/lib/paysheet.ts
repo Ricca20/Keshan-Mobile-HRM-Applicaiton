@@ -80,8 +80,17 @@ export async function generatePaySheetData(userId: string, month: number, year: 
   const deductionFromAbsence = absentDays * dailyRate
   const deductionFromUnpaid = unpaidLeaveDays * dailyRate
 
-  const totalDeductions = deductionFromAbsence + deductionFromUnpaid
+  // Penalty Calculation: Deduct a base amount per 10 points (can be overridden by admin later)
+  const penaltySets = Math.floor(user.penaltyPoints / 10)
+  const penaltyDeduction = penaltySets * 1000 // 1000 deduction per 10 points
+
+  const totalDeductions = deductionFromAbsence + deductionFromUnpaid + penaltyDeduction
   const netPay = user.salary - totalDeductions
+
+  let deductionNote = ''
+  if (penaltyDeduction > 0) {
+    deductionNote = `Salary cut for ${user.penaltyPoints} Penalty Points.`
+  }
 
   return {
     userId,
@@ -91,6 +100,7 @@ export async function generatePaySheetData(userId: string, month: number, year: 
     paidDays: workingDays - unpaidLeaveDays - absentDays, // Equivalent to clockedDays + paidLeaveDays
     unpaidDays: unpaidLeaveDays + absentDays,
     deductions: totalDeductions,
+    deductionNote: deductionNote || null,
     bonuses: 0, // default, admin can change
     netPay,
     status: 'DRAFT' as const

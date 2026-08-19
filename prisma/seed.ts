@@ -7,90 +7,162 @@ const connectionString = process.env.DATABASE_URL
 const pool = new Pool({ connectionString })
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
+
 async function main() {
-  console.log('🌱 Seeding database...')
+  console.log('🌱 Starting comprehensive database seed...')
 
-  // Create shop 1
-  const shop1 = await prisma.shop.create({
-    data: {
-      name: 'Phone Shop - Main Branch',
-      address: '123 Main Street, Colombo',
-      locationLat: 6.9271, // REPLACE with actual GPS
-      locationLng: 79.8612, // REPLACE with actual GPS
-      allowedIp: '203.0.113.1', // REPLACE with shop WiFi public IP
-      radiusMeters: 100,
-    },
-  })
-  console.log('✅ Created shop 1:', shop1.name)
+  // 1. Wipe existing data to prevent unique constraint errors
+  console.log('🧹 Wiping existing data...')
+  await prisma.paySheet.deleteMany()
+  await prisma.leaveRequest.deleteMany()
+  await prisma.leaveBalance.deleteMany()
+  await prisma.clockLog.deleteMany()
+  await prisma.user.deleteMany()
+  await prisma.leaveType.deleteMany()
+  await prisma.shop.deleteMany()
 
-  // Create shop 2
-  const shop2 = await prisma.shop.create({
-    data: {
-      name: 'Phone Shop - Branch 2',
-      address: '456 Second Street, Colombo',
-      locationLat: 6.935, // REPLACE with actual GPS
-      locationLng: 79.85, // REPLACE with actual GPS
-      allowedIp: '203.0.113.2', // REPLACE with shop WiFi public IP
-      radiusMeters: 100,
-    },
-  })
-  console.log('✅ Created shop 2:', shop2.name)
+  // 2. Create 5 Shops
+  console.log('🏬 Creating 5 Shops...')
+  const shopsData = [
+    { name: 'Liberty Plaza Branch', address: 'Liberty Plaza, Colombo 03', allowedIp: '192.168.1.1' },
+    { name: 'Majestic City Branch', address: 'Majestic City, Colombo 04', allowedIp: '192.168.1.2' },
+    { name: 'One Galle Face', address: 'OGF Mall, Colombo 01', allowedIp: '192.168.1.3' },
+    { name: 'Kandy City Centre', address: 'KCC, Kandy', allowedIp: '192.168.1.4' },
+    { name: 'Galle Fort Branch', address: 'Pedlar St, Galle', allowedIp: '192.168.1.5' },
+  ]
+  const shops = await Promise.all(shopsData.map(s => prisma.shop.create({ data: s })))
 
-  // Create admin (owner)
-  const owner = await prisma.user.create({
-    data: {
-      name: 'Shop Owner',
-      email: 'owner@phoneshop.lk',
-      password: await bcrypt.hash('changeme123', 12),
-      role: 'ADMIN',
-      salary: 0,
-      shopId: shop1.id,
-    },
-  })
-  console.log('✅ Created admin:', owner.email)
-
-  // Create a sample employee
-  const employee = await prisma.user.create({
-    data: {
-      name: 'John Employee',
-      email: 'john@phoneshop.lk',
-      password: await bcrypt.hash('employee123', 12),
-      role: 'EMPLOYEE',
-      salary: 50000,
-      shopId: shop1.id,
-    },
-  })
-  console.log('✅ Created sample employee:', employee.email)
-
-  // Create default leave types
-  const leaveTypes = [
+  // 3. Create 5 Leave Types
+  console.log('🌴 Creating 5 Leave Types...')
+  const leaveTypesData = [
     { name: 'Annual Leave', daysAllowed: 14, isPaid: true },
     { name: 'Sick Leave', daysAllowed: 7, isPaid: true },
     { name: 'Casual Leave', daysAllowed: 3, isPaid: true },
+    { name: 'Maternity Leave', daysAllowed: 84, isPaid: true },
     { name: 'No-Pay Leave', daysAllowed: 30, isPaid: false },
   ]
+  const leaveTypes = await Promise.all(leaveTypesData.map(lt => prisma.leaveType.create({ data: lt })))
 
-  for (const lt of leaveTypes) {
-    const leaveType = await prisma.leaveType.create({ data: lt })
-    console.log('✅ Created leave type:', leaveType.name)
+  // 4. Create 5 Users (1 Admin, 4 Employees)
+  console.log('👥 Creating 5 Users...')
+  const adminPassword = await bcrypt.hash('changeme123', 12)
+  const empPassword = await bcrypt.hash('employee123', 12)
 
-    // Create leave balances for the employee
-    const currentYear = new Date().getFullYear()
-    await prisma.leaveBalance.create({
-      data: {
-        userId: employee.id,
-        leaveTypeId: leaveType.id,
-        year: currentYear,
-        totalDays: lt.daysAllowed,
-        usedDays: 0,
-      },
-    })
+  const admin = await prisma.user.create({
+    data: {
+      name: 'Shop Owner', email: 'owner@phoneshop.lk', password: adminPassword,
+      role: 'ADMIN', salary: 0, shopId: shops[0].id,
+    }
+  })
+
+  const employeesData = [
+    { name: 'John Doe', email: 'john@phoneshop.lk', salary: 65000, shopId: shops[0].id },
+    { name: 'Jane Smith', email: 'jane@phoneshop.lk', salary: 55000, shopId: shops[1].id },
+    { name: 'Kamal Perera', email: 'kamal@phoneshop.lk', salary: 70000, shopId: shops[2].id },
+    { name: 'Nimali Silva', email: 'nimali@phoneshop.lk', salary: 45000, shopId: shops[3].id },
+  ]
+
+  const employees = await Promise.all(employeesData.map(emp => prisma.user.create({
+    data: { ...emp, password: empPassword, role: 'EMPLOYEE' }
+  })))
+  const allUsers = [admin, ...employees]
+
+  // 5. Create Leave Balances (5 balances for each of the 5 users = 25 rows)
+  console.log('📊 Creating Leave Balances...')
+  const currentYear = new Date().getFullYear()
+  for (const user of allUsers) {
+    for (const lt of leaveTypes) {
+      await prisma.leaveBalance.create({
+        data: {
+          userId: user.id, leaveTypeId: lt.id, year: currentYear,
+          totalDays: lt.daysAllowed, usedDays: Math.floor(Math.random() * 3), // Random used days
+        }
+      })
+    }
   }
 
-  console.log('\n🎉 Seed complete!')
+  // Generate date helpers
+  const today = new Date()
+  const days = Array.from({ length: 5 }, (_, i) => {
+    const d = new Date(today)
+    d.setDate(d.getDate() - i - 1) // Past 5 days
+    return d
+  })
+
+  // 6. Create ClockLogs (logs for 4 employees)
+  console.log('📅 Creating Clock Logs...')
+  for (const emp of employees) {
+    for (const date of days) {
+
+      // Create Clock IN
+      const timeIn = new Date(date)
+      timeIn.setHours(8, 55, 0, 0) // 8:55 AM
+      await prisma.clockLog.create({
+        data: {
+          userId: emp.id, shopId: emp.shopId!, type: 'IN',
+          timestamp: timeIn, ipAddress: '192.168.1.1', isValid: true,
+        }
+      })
+
+      // Create Clock OUT
+      const timeOut = new Date(date)
+      timeOut.setHours(18, 5, 0, 0) // 6:05 PM
+      await prisma.clockLog.create({
+        data: {
+          userId: emp.id, shopId: emp.shopId!, type: 'OUT',
+          timestamp: timeOut, ipAddress: '192.168.1.1', isValid: true,
+        }
+      })
+    }
+  }
+
+  // 8. Create Leave Requests (5 requests total)
+  console.log('🏖️ Creating Leave Requests...')
+  const futureDate = new Date(today)
+  futureDate.setDate(futureDate.getDate() + 10)
+
+  const leaveRequestsData = [
+    { userId: employees[0].id, leaveTypeId: leaveTypes[0].id, startDate: futureDate, endDate: futureDate, totalDays: 1, reason: 'Family event', status: 'PENDING' },
+    { userId: employees[1].id, leaveTypeId: leaveTypes[1].id, startDate: futureDate, endDate: futureDate, totalDays: 1, reason: 'Fever', status: 'APPROVED' },
+    { userId: employees[2].id, leaveTypeId: leaveTypes[2].id, startDate: futureDate, endDate: futureDate, totalDays: 1, reason: 'Personal errand', status: 'REJECTED' },
+    { userId: employees[3].id, leaveTypeId: leaveTypes[0].id, startDate: futureDate, endDate: futureDate, totalDays: 1, reason: 'Vacation', status: 'PENDING' },
+    { userId: employees[0].id, leaveTypeId: leaveTypes[1].id, startDate: today, endDate: today, totalDays: 1, reason: 'Doctor appointment', status: 'APPROVED' },
+  ] as any[]
+
+  for (const lr of leaveRequestsData) {
+    await prisma.leaveRequest.create({ data: lr })
+  }
+
+  // 9. Create PaySheets (1 for each of the 4 employees + 1 for last month = 5 total)
+  console.log('💰 Creating PaySheets...')
+  const currentMonth = today.getMonth() + 1
+  for (const emp of employees) {
+    await prisma.paySheet.create({
+      data: {
+        userId: emp.id, month: currentMonth, year: currentYear,
+        baseSalary: emp.salary, paidDays: 20, unpaidDays: 0,
+        deductions: 0, bonuses: 5000, netPay: emp.salary + 5000,
+        status: 'FINALIZED'
+      }
+    })
+  }
+  // Extra paysheet for Employee 1 for last month
+  const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1
+  const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear
+  await prisma.paySheet.create({
+    data: {
+      userId: employees[0].id, month: lastMonth, year: lastMonthYear,
+      baseSalary: employees[0].salary, paidDays: 22, unpaidDays: 1,
+      deductions: 2000, bonuses: 0, netPay: employees[0].salary - 2000,
+      status: 'FINALIZED'
+    }
+  })
+
+  console.log('\n🎉 Comprehensive Seed Complete!')
   console.log('\n📋 Login credentials:')
   console.log('   Admin: owner@phoneshop.lk / changeme123')
   console.log('   Employee: john@phoneshop.lk / employee123')
+  console.log('   Employee: jane@phoneshop.lk / employee123')
 }
 
 main()

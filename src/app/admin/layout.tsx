@@ -18,16 +18,18 @@ import {
   X,
   ChevronRight,
   Fingerprint,
+  ShieldAlert,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 
 const navItems = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { label: 'Employees', href: '/admin/employees', icon: Users },
   { label: 'Shops', href: '/admin/shops', icon: Store },
   { label: 'Attendance', href: '/admin/attendance', icon: Clock },
-  { label: 'Shifts', href: '/admin/shifts', icon: Calendar },
+  { label: 'Verification', href: '/admin/verification', icon: ShieldAlert },
   { label: 'Leave', href: '/admin/leave', icon: TreePalm },
   { label: 'Paysheets', href: '/admin/paysheets', icon: Receipt },
   { label: 'Reports', href: '/admin/reports', icon: BarChart3 },
@@ -156,6 +158,7 @@ export default function AdminLayout({
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex-1" />
+          <NotificationBell />
           <span className="text-xs text-slate-500 hidden sm:block">
             {new Date().toLocaleDateString('en-US', {
               weekday: 'long',
