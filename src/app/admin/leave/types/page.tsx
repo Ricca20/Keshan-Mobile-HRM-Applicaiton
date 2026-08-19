@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Edit2 } from 'lucide-react'
+import { Plus, Edit2, Settings, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -85,51 +85,59 @@ export default function LeaveTypesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Leave Types</h1>
-          <p className="text-muted-foreground">Manage leave policies and allowances.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Leave Types</h1>
+          <p className="text-slate-500 text-sm mt-1">Manage leave policies and allowances.</p>
         </div>
-        <Button onClick={() => openModal()}>
+        <Button onClick={() => openModal()} className="shadow-lg shadow-blue-500/20 w-full sm:w-auto">
           <Plus className="w-4 h-4 mr-2" /> Add Leave Type
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Configured Leave Types</CardTitle>
+      <Card className="border-slate-200 shadow-sm overflow-hidden">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+          <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <Settings className="w-5 h-5 text-slate-400" /> Configured Leave Types
+          </CardTitle>
           <CardDescription>Changes to allowed days affect new balances.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="flex justify-center p-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : (
-            <div className="divide-y border rounded-lg">
+            <div className="divide-y divide-slate-100">
               {types.map(type => (
-                <div key={type.id} className="flex items-center justify-between p-4 bg-card">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold">{type.name}</h3>
-                      <Badge variant={type.isPaid ? 'success' : 'secondary'}>
-                        {type.isPaid ? 'Paid' : 'Unpaid'}
-                      </Badge>
-                      {!type.isActive && <Badge variant="destructive">Inactive</Badge>}
+                <div key={type.id} className="flex items-center justify-between p-6 hover:bg-slate-50/50 transition-colors bg-white group">
+                  <div className="flex items-start gap-4">
+                    <div className="mt-0.5 bg-blue-50 text-blue-500 p-2.5 rounded-xl">
+                      <FileText className="w-5 h-5" />
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {type.daysAllowed} days allowed per year
-                    </p>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-3 mb-1">
+                        <h3 className="font-bold text-lg text-slate-900">{type.name}</h3>
+                        <Badge variant={type.isPaid ? 'success' : 'secondary'} className="uppercase tracking-wider font-bold">
+                          {type.isPaid ? 'Paid' : 'Unpaid'}
+                        </Badge>
+                        {!type.isActive && <Badge variant="destructive" className="uppercase tracking-wider font-bold">Inactive</Badge>}
+                      </div>
+                      <p className="text-sm font-medium text-slate-500 mt-1">
+                        <span className="text-slate-900 font-bold">{type.daysAllowed}</span> days allowed per year
+                      </p>
+                    </div>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => openModal(type)}>
-                    <Edit2 className="w-4 h-4" />
+                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 opacity-0 group-hover:opacity-100 transition-all shrink-0" onClick={() => openModal(type)}>
+                    <Edit2 className="w-5 h-5" />
                   </Button>
                 </div>
               ))}
               {types.length === 0 && (
-                <div className="p-8 text-center text-muted-foreground">
-                  No leave types configured.
+                <div className="p-16 text-center text-slate-400 bg-slate-50/50">
+                  <FileText className="w-12 h-12 mx-auto mb-4 opacity-20 text-slate-500" />
+                  <p className="font-medium text-slate-500">No leave types configured.</p>
                 </div>
               )}
             </div>
@@ -137,68 +145,75 @@ export default function LeaveTypesPage() {
         </CardContent>
       </Card>
 
-      {/* Simple Modal overlay for forms */}
+      {/* Modern Modal overlay for forms */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <Card className="w-full max-w-md shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-slide-in-left">
             <form onSubmit={handleSubmit}>
-              <CardHeader>
-                <CardTitle>{editingType ? 'Edit Leave Type' : 'New Leave Type'}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              <div className="p-6 md:p-8 border-b border-slate-100">
+                <h2 className="text-2xl font-bold text-slate-900">{editingType ? 'Edit Leave Type' : 'New Leave Type'}</h2>
+              </div>
+              
+              <div className="p-6 md:p-8 space-y-5 bg-slate-50/50">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Leave Name</label>
+                  <label className="text-sm font-semibold text-slate-700">Leave Name</label>
                   <input
                     type="text"
                     required
-                    className="w-full p-2 rounded-md border bg-background"
+                    className="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g. Annual Leave"
                   />
                 </div>
+                
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Days Allowed per Year</label>
+                  <label className="text-sm font-semibold text-slate-700">Days Allowed per Year</label>
                   <input
                     type="number"
                     min="0"
                     required
-                    className="w-full p-2 rounded-md border bg-background"
+                    className="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
                     value={formData.daysAllowed}
                     onChange={e => setFormData({ ...formData, daysAllowed: parseInt(e.target.value) })}
                   />
                 </div>
-                <div className="flex items-center gap-2">
+                
+                <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
                   <input
                     type="checkbox"
                     id="isPaid"
+                    className="w-5 h-5 rounded border-slate-300 text-blue-500 focus:ring-blue-500"
                     checked={formData.isPaid}
                     onChange={e => setFormData({ ...formData, isPaid: e.target.checked })}
                   />
-                  <label htmlFor="isPaid" className="text-sm font-medium">Is this Paid Leave?</label>
+                  <label htmlFor="isPaid" className="text-sm font-semibold text-slate-700 cursor-pointer">Is this Paid Leave?</label>
                 </div>
+                
                 {editingType && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
                     <input
                       type="checkbox"
                       id="isActive"
+                      className="w-5 h-5 rounded border-slate-300 text-red-500 focus:ring-red-500"
                       checked={formData.isActive}
                       onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
                     />
-                    <label htmlFor="isActive" className="text-sm font-medium text-red-600">Active Status</label>
+                    <label htmlFor="isActive" className="text-sm font-semibold text-red-600 cursor-pointer">Active Status</label>
                   </div>
                 )}
-              </CardContent>
-              <div className="p-4 border-t flex justify-end gap-2 bg-muted/50 rounded-b-xl">
-                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+              </div>
+              
+              <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-white">
+                <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" isLoading={saveMutation.isPending}>
+                <Button type="submit" isLoading={saveMutation.isPending} className="px-6 shadow-lg shadow-blue-500/20">
                   Save Leave Type
                 </Button>
               </div>
             </form>
-          </Card>
+          </div>
         </div>
       )}
     </div>

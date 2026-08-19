@@ -5,7 +5,6 @@ import {
   Clock,
   TreePalm,
   AlertTriangle,
-  DollarSign,
   UserX,
   FileSpreadsheet
 } from 'lucide-react'
@@ -55,7 +54,6 @@ export default async function AdminDashboard() {
   })
 
   // 6. Absent Today (Total - Clocked In - Approved Leave today)
-  // Get users on approved leave today
   const onLeaveToday = await prisma.leaveRequest.findMany({
     where: {
       status: 'APPROVED',
@@ -72,8 +70,8 @@ export default async function AdminDashboard() {
       value: totalEmployees.toString(),
       subtitle: 'Active staff members',
       icon: Users,
-      color: 'from-indigo-600 to-violet-600',
-      shadow: 'shadow-indigo-500/20',
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-blue-500',
       href: '/admin/employees'
     },
     {
@@ -81,8 +79,8 @@ export default async function AdminDashboard() {
       value: clockedInCount.toString(),
       subtitle: 'Currently at work',
       icon: Clock,
-      color: 'from-emerald-600 to-teal-600',
-      shadow: 'shadow-emerald-500/20',
+      iconBg: 'bg-emerald-50',
+      iconColor: 'text-emerald-500',
       href: '/admin/attendance'
     },
     {
@@ -90,8 +88,8 @@ export default async function AdminDashboard() {
       value: pendingLeaves.toString(),
       subtitle: 'Awaiting approval',
       icon: TreePalm,
-      color: 'from-amber-600 to-orange-600',
-      shadow: 'shadow-amber-500/20',
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-500',
       href: '/admin/leave'
     },
     {
@@ -99,8 +97,8 @@ export default async function AdminDashboard() {
       value: flaggedEntries.toString(),
       subtitle: 'Security warnings today',
       icon: AlertTriangle,
-      color: 'from-red-600 to-rose-600',
-      shadow: 'shadow-red-500/20',
+      iconBg: 'bg-red-50',
+      iconColor: 'text-red-500',
       href: '/admin/attendance'
     },
     {
@@ -108,8 +106,8 @@ export default async function AdminDashboard() {
       value: draftPaysheets.toString(),
       subtitle: `For ${new Date(2000, currentMonth - 1).toLocaleString('default', { month: 'short' })}`,
       icon: FileSpreadsheet,
-      color: 'from-blue-600 to-cyan-600',
-      shadow: 'shadow-blue-500/20',
+      iconBg: 'bg-violet-50',
+      iconColor: 'text-violet-500',
       href: '/admin/paysheets'
     },
     {
@@ -117,8 +115,8 @@ export default async function AdminDashboard() {
       value: absentCount.toString(),
       subtitle: 'Scheduled but not in',
       icon: UserX,
-      color: 'from-slate-600 to-slate-500',
-      shadow: 'shadow-slate-500/20',
+      iconBg: 'bg-slate-100',
+      iconColor: 'text-slate-500',
       href: '/admin/attendance'
     },
   ]
@@ -141,10 +139,10 @@ export default async function AdminDashboard() {
     <div className="animate-fade-in space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+        <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">
           Welcome back, {session?.user?.name ?? 'Admin'} 👋
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-slate-500 mt-1">
           Here&apos;s what&apos;s happening across your shops today.
         </p>
       </div>
@@ -156,22 +154,22 @@ export default async function AdminDashboard() {
           return (
             <Link key={card.title} href={card.href}>
               <div
-                className="group relative bg-card border rounded-2xl p-5 transition-all duration-300 hover:border-primary/50 hover:-translate-y-0.5 hover:shadow-xl cursor-pointer h-full"
+                className="group relative bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-300 hover:border-blue-200 hover:-translate-y-0.5 hover:shadow-lg cursor-pointer h-full"
               >
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
+                    <p className="text-sm font-medium text-slate-500">
                       {card.title}
                     </p>
-                    <p className="text-3xl font-bold tracking-tight">
+                    <p className="text-3xl font-bold text-slate-900 tracking-tight">
                       {card.value}
                     </p>
-                    <p className="text-xs text-muted-foreground">{card.subtitle}</p>
+                    <p className="text-xs text-slate-400">{card.subtitle}</p>
                   </div>
                   <div
-                    className={`flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} shadow-lg ${card.shadow} transition-transform duration-300 group-hover:scale-110`}
+                    className={`flex items-center justify-center w-12 h-12 rounded-xl ${card.iconBg} transition-transform duration-300 group-hover:scale-110`}
                   >
-                    <Icon className="w-6 h-6 text-white" />
+                    <Icon className={`w-6 h-6 ${card.iconColor}`} />
                   </div>
                 </div>
               </div>
@@ -181,53 +179,53 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-card border rounded-2xl p-6">
-          <h3 className="text-lg font-semibold mb-4">Recent Attendance Activity</h3>
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Attendance Activity</h3>
           {recentLogs.length === 0 ? (
-             <p className="text-sm text-muted-foreground text-center p-4">No recent clock logs.</p>
+             <p className="text-sm text-slate-400 text-center p-4">No recent clock logs.</p>
           ) : (
             <div className="space-y-4">
               {recentLogs.map(log => (
-                <div key={log.id} className="flex justify-between items-center text-sm border-b pb-2 last:border-0">
+                <div key={log.id} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0">
                   <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${log.type === 'IN' ? 'bg-green-500' : 'bg-orange-500'}`} />
-                    <span className="font-medium">{log.user.name}</span>
-                    <span className="text-muted-foreground">clocked {log.type.toLowerCase()}</span>
+                    <span className="font-medium text-slate-700">{log.user.name}</span>
+                    <span className="text-slate-400">clocked {log.type.toLowerCase()}</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-slate-400">
                     {new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                   </span>
                 </div>
               ))}
-              <Link href="/admin/attendance" className="block text-center text-sm text-primary hover:underline mt-2">
+              <Link href="/admin/attendance" className="block text-center text-sm text-blue-500 hover:underline mt-2">
                 View all logs &rarr;
               </Link>
             </div>
           )}
         </div>
 
-        <div className="bg-card border rounded-2xl p-6">
-          <h3 className="text-lg font-semibold mb-4">Recent Leave Requests</h3>
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Leave Requests</h3>
           {recentLeaves.length === 0 ? (
-             <p className="text-sm text-muted-foreground text-center p-4">No recent leave requests.</p>
+             <p className="text-sm text-slate-400 text-center p-4">No recent leave requests.</p>
           ) : (
             <div className="space-y-4">
               {recentLeaves.map(req => (
-                <div key={req.id} className="flex justify-between items-center text-sm border-b pb-2 last:border-0">
+                <div key={req.id} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0">
                   <div>
-                    <p className="font-medium">{req.user.name}</p>
-                    <p className="text-xs text-muted-foreground">{req.leaveType.name} - {req.totalDays} day(s)</p>
+                    <p className="font-medium text-slate-700">{req.user.name}</p>
+                    <p className="text-xs text-slate-400">{req.leaveType.name} - {req.totalDays} day(s)</p>
                   </div>
-                  <div className={`px-2 py-1 rounded text-xs font-medium ${
-                    req.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                    req.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                    'bg-yellow-100 text-yellow-700'
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    req.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' :
+                    req.status === 'REJECTED' ? 'bg-red-50 text-red-700' :
+                    'bg-amber-50 text-amber-700'
                   }`}>
                     {req.status}
                   </div>
                 </div>
               ))}
-              <Link href="/admin/leave" className="block text-center text-sm text-primary hover:underline mt-2">
+              <Link href="/admin/leave" className="block text-center text-sm text-blue-500 hover:underline mt-2">
                 View all leaves &rarr;
               </Link>
             </div>

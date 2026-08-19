@@ -36,87 +36,86 @@ export default function AdminAttendancePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Live Attendance</h1>
-          <p className="text-muted-foreground">Monitor real-time clock-in/out logs across all shops.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Live Attendance</h1>
+          <p className="text-slate-500 text-sm mt-1">Monitor real-time clock-in/out logs across all shops.</p>
+        </div>
+        <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 w-full sm:w-auto">
+          <Calendar className="w-5 h-5 text-slate-400 ml-2 shrink-0" />
+          <input 
+            type="date" 
+            className="bg-transparent border-none focus:ring-0 text-sm font-medium text-slate-700 w-full outline-none px-2 py-1"
+            value={filterDate}
+            onChange={e => setFilterDate(e.target.value)}
+          />
         </div>
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <div>
-            <CardTitle className="text-xl">Activity Feed</CardTitle>
-            <CardDescription>Viewing logs for selected date</CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-muted-foreground" />
-            <Input 
-              type="date" 
-              className="w-auto"
-              value={filterDate}
-              onChange={e => setFilterDate(e.target.value)}
-            />
-          </div>
+      <Card className="border-slate-200 shadow-sm overflow-hidden">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+          <CardTitle className="text-lg font-bold text-slate-900">Activity Feed</CardTitle>
+          <CardDescription>Viewing logs for {new Date(filterDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="flex justify-center p-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : logs.length === 0 ? (
-            <div className="text-center p-12 border-2 border-dashed rounded-xl text-muted-foreground">
-              <Clock className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <h3 className="text-lg font-medium text-foreground">No activity today</h3>
-              <p>No employees have clocked in or out on this date.</p>
+            <div className="text-center p-16 text-slate-400 bg-slate-50/30">
+              <Clock className="w-12 h-12 mx-auto mb-4 opacity-20 text-slate-500" />
+              <h3 className="text-lg font-semibold text-slate-900">No activity today</h3>
+              <p className="text-sm text-slate-500 mt-1">No employees have clocked in or out on this date.</p>
             </div>
           ) : (
-            <div className="space-y-3 mt-4">
+            <div className="divide-y divide-slate-100">
               {logs.map(log => {
                 const time = new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 
                 return (
                   <div 
                     key={log.id} 
-                    className={`flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg border ${log.isValid ? 'bg-card' : 'bg-red-50/50 border-red-200'}`}
+                    className={`flex flex-col md:flex-row md:items-center justify-between p-6 transition-colors hover:bg-slate-50/50 ${log.isValid ? 'bg-white' : 'bg-red-50/30'}`}
                   >
                     <div className="flex items-start gap-4">
-                      <div className={`mt-1 rounded-full p-2 ${log.type === 'IN' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
-                        <Clock className="w-4 h-4" />
+                      <div className={`mt-0.5 rounded-2xl p-3 shadow-sm ${log.type === 'IN' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'}`}>
+                        <Clock className="w-5 h-5" />
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold">{log.user?.name}</h4>
-                          <Badge variant={log.type === 'IN' ? 'default' : 'secondary'} className={log.type === 'IN' ? 'bg-green-600' : ''}>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <h4 className="font-bold text-slate-900 text-lg">{log.user?.name}</h4>
+                          <Badge variant={log.type === 'IN' ? 'success' : 'secondary'} className="font-semibold uppercase tracking-wider text-[10px]">
                             {log.type === 'IN' ? 'Clocked In' : 'Clocked Out'}
                           </Badge>
                           {!log.isValid && (
-                            <Badge variant="destructive" className="flex items-center gap-1">
+                            <Badge variant="destructive" className="flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wider">
                               <AlertTriangle className="w-3 h-3" /> Flagged
                             </Badge>
                           )}
                         </div>
-                        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1 font-medium text-foreground">
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                          <span className="flex items-center gap-1.5 font-bold text-slate-900">
                             {time}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
+                          <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                          <span className="flex items-center gap-1.5 font-medium">
+                            <MapPin className="w-4 h-4 text-slate-400" />
                             {log.shop?.name}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Wifi className="w-3 h-3" />
-                            IP: {log.ipAddress}
+                          <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                          <span className="flex items-center gap-1.5 font-mono text-xs">
+                            <Wifi className="w-4 h-4 text-slate-400" />
+                            {log.ipAddress}
                           </span>
                         </div>
                         {!log.isValid && log.flagReason && (
-                          <div className="mt-2 text-sm text-red-600 bg-red-100/50 px-2 py-1 rounded inline-block">
+                          <div className="mt-3 text-sm font-medium text-red-700 bg-red-100/50 px-3 py-2 rounded-xl border border-red-200 inline-block">
                             {log.flagReason}
                           </div>
                         )}
                       </div>
                     </div>
-                    {/* Add manual override button here if needed in future */}
                   </div>
                 )
               })}

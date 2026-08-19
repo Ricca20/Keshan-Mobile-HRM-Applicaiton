@@ -112,32 +112,32 @@ export default function AdminShiftsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Shift Assignments</h1>
-          <p className="text-muted-foreground">Schedule when employees are expected to work.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Shift Assignments</h1>
+          <p className="text-slate-500 text-sm mt-1">Schedule when employees are expected to work.</p>
         </div>
         {!showForm && (
-          <Button onClick={() => setShowForm(true)}>
+          <Button onClick={() => setShowForm(true)} className="shadow-lg shadow-blue-500/20 w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" /> Assign Shift
           </Button>
         )}
       </div>
 
       {showForm && (
-        <Card className="border-primary/20 shadow-lg">
-          <CardHeader>
+        <Card className="border-blue-100 shadow-xl shadow-blue-900/5 animate-fade-in">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-6 rounded-t-2xl">
             <CardTitle>Assign New Shift</CardTitle>
             <CardDescription>Select an employee and time slot.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div className="space-y-2 lg:col-span-1">
-                  <label className="text-sm font-medium">Employee</label>
+          <CardContent className="pt-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                <div className="space-y-1.5 lg:col-span-1">
+                  <label className="block text-sm font-medium text-slate-700">Employee</label>
                   <select 
                     required
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none hover:border-slate-400 transition-all"
                     value={formData.userId}
                     onChange={e => setFormData({...formData, userId: e.target.value})}
                   >
@@ -148,11 +148,11 @@ export default function AdminShiftsPage() {
                   </select>
                 </div>
 
-                <div className="space-y-2 lg:col-span-1">
-                  <label className="text-sm font-medium">Shop</label>
+                <div className="space-y-1.5 lg:col-span-1">
+                  <label className="block text-sm font-medium text-slate-700">Shop</label>
                   <select 
                     required
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none hover:border-slate-400 transition-all"
                     value={formData.shopId}
                     onChange={e => setFormData({...formData, shopId: e.target.value})}
                   >
@@ -163,9 +163,9 @@ export default function AdminShiftsPage() {
                   </select>
                 </div>
                 
-                <div className="space-y-2 lg:col-span-1">
-                  <label className="text-sm font-medium">Date</label>
+                <div className="lg:col-span-1">
                   <Input 
+                    label="Date"
                     type="date"
                     required
                     value={formData.date} 
@@ -173,9 +173,9 @@ export default function AdminShiftsPage() {
                   />
                 </div>
 
-                <div className="space-y-2 lg:col-span-1">
-                  <label className="text-sm font-medium">Start Time</label>
+                <div className="lg:col-span-1">
                   <Input 
+                    label="Start Time"
                     type="time"
                     required
                     value={formData.startTime} 
@@ -183,9 +183,9 @@ export default function AdminShiftsPage() {
                   />
                 </div>
 
-                <div className="space-y-2 lg:col-span-1">
-                  <label className="text-sm font-medium">End Time</label>
+                <div className="lg:col-span-1">
                   <Input 
+                    label="End Time"
                     type="time"
                     required
                     value={formData.endTime} 
@@ -194,9 +194,9 @@ export default function AdminShiftsPage() {
                 </div>
               </div>
               
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
-                <Button type="submit" disabled={saveMutation.isPending}>
+              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
+                <Button type="submit" disabled={saveMutation.isPending} className="shadow-lg shadow-blue-500/20">
                   {saveMutation.isPending ? 'Saving...' : 'Assign Shift'}
                 </Button>
               </div>
@@ -205,58 +205,59 @@ export default function AdminShiftsPage() {
         </Card>
       )}
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <Card className="border-slate-200 shadow-sm overflow-hidden">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 bg-slate-50/50 border-b border-slate-100">
           <div>
-            <CardTitle className="text-xl">Daily Schedule</CardTitle>
-            <CardDescription>Viewing shifts for selected date</CardDescription>
+            <CardTitle className="text-lg font-bold text-slate-900">Daily Schedule</CardTitle>
+            <CardDescription>Viewing shifts for {new Date(filterDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</CardDescription>
           </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-muted-foreground" />
-            <Input 
+          <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 w-full sm:w-auto mt-4 sm:mt-0">
+            <Calendar className="w-5 h-5 text-slate-400 ml-2 shrink-0" />
+            <input 
               type="date" 
-              className="w-auto"
+              className="bg-transparent border-none focus:ring-0 text-sm font-medium text-slate-700 w-full outline-none px-2 py-1"
               value={filterDate}
               onChange={e => setFilterDate(e.target.value)}
             />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="flex justify-center p-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : shifts.length === 0 ? (
-            <div className="text-center p-8 text-muted-foreground">
-              No shifts scheduled for this date.
+            <div className="text-center p-16 text-slate-400 bg-slate-50/30">
+              <Calendar className="w-12 h-12 mx-auto mb-4 opacity-20 text-slate-500" />
+              <p className="font-medium text-slate-500">No shifts scheduled for this date.</p>
             </div>
           ) : (
-            <div className="space-y-3 mt-4">
+            <div className="divide-y divide-slate-100">
               {shifts.map(shift => {
                 const start = new Date(shift.startTime)
                 const end = new Date(shift.endTime)
                 const formatTime = (d: Date) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 
                 return (
-                  <div key={shift.id} className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/10 transition-colors">
+                  <div key={shift.id} className="flex items-center justify-between p-5 hover:bg-slate-50/50 transition-colors bg-white group">
                     <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg">
                         {shift.user?.name.charAt(0)}
                       </div>
                       <div>
-                        <h4 className="font-semibold">{shift.user?.name}</h4>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
+                        <h4 className="font-bold text-slate-900">{shift.user?.name}</h4>
+                        <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500 mt-1">
+                          <span className="flex items-center gap-1.5 font-medium bg-slate-100 px-2 py-0.5 rounded-md text-slate-700">
+                            <Clock className="w-3.5 h-3.5 text-slate-400" />
                             {formatTime(start)} - {formatTime(end)}
                           </span>
-                          <span>•</span>
-                          <span>{shift.shop?.name}</span>
+                          <span className="w-1 h-1 rounded-full bg-slate-300 hidden sm:block"></span>
+                          <span className="font-medium text-slate-600">{shift.shop?.name}</span>
                         </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(shift.id)}>
-                      <Trash2 className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all shrink-0" onClick={() => handleDelete(shift.id)}>
+                      <Trash2 className="h-5 w-5" />
                     </Button>
                   </div>
                 )

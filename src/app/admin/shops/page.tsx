@@ -100,98 +100,92 @@ export default function AdminShopsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Shops</h1>
-          <p className="text-muted-foreground">Manage your store locations and security boundaries.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Shops</h1>
+          <p className="text-slate-500 text-sm mt-1">Manage your store locations and security boundaries.</p>
         </div>
         {!showForm && (
-          <Button onClick={handleAddNew}>
+          <Button onClick={handleAddNew} className="shadow-lg shadow-blue-500/20">
             <Plus className="mr-2 h-4 w-4" /> Add Shop
           </Button>
         )}
       </div>
 
       {showForm && (
-        <Card className="border-primary/20 shadow-lg">
-          <CardHeader>
+        <Card className="border-blue-100 shadow-xl shadow-blue-900/5 animate-fade-in">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-6 rounded-t-2xl">
             <CardTitle>{isEditing ? 'Edit Shop' : 'Add New Shop'}</CardTitle>
             <CardDescription>Configure the shop's physical location and authorized Wi-Fi network.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Shop Name</label>
-                  <Input 
-                    required
-                    placeholder="Main Branch" 
-                    value={formData.name || ''} 
-                    onChange={e => setFormData({...formData, name: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Address</label>
-                  <Input 
-                    required
-                    placeholder="123 Main St, Colombo" 
-                    value={formData.address || ''} 
-                    onChange={e => setFormData({...formData, address: e.target.value})}
-                  />
-                </div>
+          <CardContent className="pt-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input 
+                  label="Shop Name"
+                  required
+                  placeholder="Main Branch" 
+                  value={formData.name || ''} 
+                  onChange={e => setFormData({...formData, name: e.target.value})}
+                />
                 
-                {/* We keep these visible but optional depending on user preference, they are used in the backend for GPS validation if enabled */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Latitude</label>
-                  <Input 
-                    type="number"
-                    step="any"
-                    placeholder="6.9271" 
-                    value={formData.locationLat || ''} 
-                    onChange={e => setFormData({...formData, locationLat: parseFloat(e.target.value)})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Longitude</label>
-                  <Input 
-                    type="number"
-                    step="any"
-                    placeholder="79.8612" 
-                    value={formData.locationLng || ''} 
-                    onChange={e => setFormData({...formData, locationLng: parseFloat(e.target.value)})}
-                  />
-                </div>
+                <Input 
+                  label="Address"
+                  required
+                  placeholder="123 Main St, Colombo" 
+                  value={formData.address || ''} 
+                  onChange={e => setFormData({...formData, address: e.target.value})}
+                />
+                
+                <Input 
+                  label="Latitude"
+                  type="number"
+                  step="any"
+                  placeholder="6.9271" 
+                  value={formData.locationLat || ''} 
+                  onChange={e => setFormData({...formData, locationLat: parseFloat(e.target.value)})}
+                />
+                
+                <Input 
+                  label="Longitude"
+                  type="number"
+                  step="any"
+                  placeholder="79.8612" 
+                  value={formData.locationLng || ''} 
+                  onChange={e => setFormData({...formData, locationLng: parseFloat(e.target.value)})}
+                />
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2">
-                    <Wifi className="w-4 h-4" /> Allowed IP Address
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <Wifi className="w-4 h-4 text-blue-500" /> Allowed IP Address
                   </label>
-                  <Input 
-                    required
-                    placeholder="203.0.113.1" 
-                    value={formData.allowedIp || ''} 
-                    onChange={e => setFormData({...formData, allowedIp: e.target.value})}
-                  />
-                  <p className="text-xs text-muted-foreground">Employees must be connected to this IP to clock in.</p>
+                  <div className="relative">
+                    <input
+                      required
+                      className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none hover:border-slate-400 transition-all"
+                      placeholder="203.0.113.1" 
+                      value={formData.allowedIp || ''} 
+                      onChange={e => setFormData({...formData, allowedIp: e.target.value})}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500">Employees must be connected to this IP to clock in.</p>
                 </div>
                 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">GPS Radius (meters)</label>
-                  <Input 
-                    type="number"
-                    required
-                    placeholder="100" 
-                    value={formData.radiusMeters || ''} 
-                    onChange={e => setFormData({...formData, radiusMeters: parseInt(e.target.value)})}
-                  />
-                </div>
+                <Input 
+                  label="GPS Radius (meters)"
+                  type="number"
+                  required
+                  placeholder="100" 
+                  value={formData.radiusMeters || ''} 
+                  onChange={e => setFormData({...formData, radiusMeters: parseInt(e.target.value)})}
+                />
               </div>
               
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saveMutation.isPending}>
+                <Button type="submit" isLoading={saveMutation.isPending} className="px-8 shadow-lg shadow-blue-500/20">
                   {saveMutation.isPending ? 'Saving...' : 'Save Shop'}
                 </Button>
               </div>
@@ -201,57 +195,58 @@ export default function AdminShopsPage() {
       )}
 
       {isLoading ? (
-        <div className="flex justify-center p-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="flex justify-center p-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {shops.map(shop => (
-            <Card key={shop.id} className="hover:shadow-md transition-shadow group">
-              <CardHeader className="pb-3">
+            <Card key={shop.id} className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group overflow-hidden border-slate-200">
+              <div className="h-1.5 w-full bg-gradient-to-r from-blue-400 to-indigo-500" />
+              <CardHeader className="pb-4">
                 <div className="flex justify-between items-start">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Store className="w-5 h-5 text-primary" />
-                    {shop.name}
-                  </CardTitle>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-50 text-blue-500 rounded-lg">
+                      <Store className="w-5 h-5" />
+                    </div>
+                    <CardTitle className="text-lg font-bold text-slate-900">
+                      {shop.name}
+                    </CardTitle>
+                  </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(shop)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600 hover:bg-blue-50" onClick={() => handleEdit(shop)}>
                       <Edit2 className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(shop.id)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(shop.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-                <CardDescription className="flex items-start gap-1 mt-1">
+                <CardDescription className="flex items-start gap-1.5 mt-3 text-slate-500">
                   <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span>{shop.address}</span>
+                  <span className="line-clamp-2">{shop.address}</span>
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 pt-2 border-t text-sm">
+                <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Allowed Network:</span>
-                    <Badge variant="secondary" className="font-mono">{shop.allowedIp}</Badge>
+                    <span className="text-slate-500 font-medium">Network IP:</span>
+                    <Badge variant="secondary" className="font-mono text-xs bg-white border-slate-200">{shop.allowedIp}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Geofence Radius:</span>
-                    <span className="font-medium">{shop.radiusMeters}m</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs text-muted-foreground">
-                    <span>GPS:</span>
-                    <span className="font-mono">{shop.locationLat}, {shop.locationLng}</span>
+                    <span className="text-slate-500 font-medium">Radius:</span>
+                    <span className="font-semibold text-slate-700">{shop.radiusMeters}m</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
           {shops.length === 0 && !showForm && (
-            <div className="col-span-full text-center p-12 border-2 border-dashed rounded-xl text-muted-foreground">
-              <Store className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <h3 className="text-lg font-medium text-foreground">No shops configured</h3>
-              <p className="mb-4">Add your first shop to start managing employees.</p>
-              <Button onClick={handleAddNew}>Add Your First Shop</Button>
+            <div className="col-span-full text-center p-16 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50">
+              <Store className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+              <h3 className="text-lg font-semibold text-slate-900">No shops configured</h3>
+              <p className="text-sm text-slate-500 mb-6">Add your first shop to start managing employees.</p>
+              <Button onClick={handleAddNew} className="shadow-lg shadow-blue-500/20">Add Your First Shop</Button>
             </div>
           )}
         </div>

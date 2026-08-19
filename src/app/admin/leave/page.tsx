@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Calendar, CheckCircle2, XCircle, Clock, FileText } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
@@ -74,96 +74,99 @@ export default function AdminLeaveRequestsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Leave Management</h1>
-          <p className="text-muted-foreground">Review and manage employee leave requests.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Leave Management</h1>
+          <p className="text-slate-500 text-sm mt-1">Review and manage employee leave requests.</p>
         </div>
-        <Link href="/admin/leave/types">
-          <Button variant="outline">
+        <Link href="/admin/leave/types" className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full">
             Configure Leave Types
           </Button>
         </Link>
       </div>
 
-      <div className="flex gap-2 border-b">
+      <div className="flex gap-2 border-b border-slate-200 px-2">
         <button
-          className={`px-4 py-2 font-medium border-b-2 transition-colors ${activeTab === 'PENDING' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+          className={`px-6 py-3 font-semibold border-b-2 transition-colors ${activeTab === 'PENDING' ? 'border-blue-500 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
           onClick={() => setActiveTab('PENDING')}
         >
           Pending Requests
         </button>
         <button
-          className={`px-4 py-2 font-medium border-b-2 transition-colors ${activeTab === 'HISTORY' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+          className={`px-6 py-3 font-semibold border-b-2 transition-colors ${activeTab === 'HISTORY' ? 'border-blue-500 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
           onClick={() => setActiveTab('HISTORY')}
         >
           History
         </button>
       </div>
 
-      <Card>
+      <Card className="border-slate-200 shadow-sm overflow-hidden">
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center p-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="flex justify-center p-16">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : requests.length === 0 ? (
-            <div className="text-center p-12 text-muted-foreground">
-              <FileText className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <h3 className="text-lg font-medium text-foreground">No {activeTab.toLowerCase()} requests</h3>
-              <p>You're all caught up!</p>
+            <div className="text-center p-16 text-slate-400 bg-slate-50/50">
+              <FileText className="w-12 h-12 mx-auto mb-4 opacity-20 text-slate-500" />
+              <h3 className="text-lg font-semibold text-slate-900">No {activeTab.toLowerCase()} requests</h3>
+              <p className="text-sm mt-1">You're all caught up!</p>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-slate-100">
               {requests.map(request => (
-                <div key={request.id} className="p-6 flex flex-col md:flex-row gap-6 hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                <div key={request.id} className="p-6 md:p-8 flex flex-col md:flex-row gap-6 hover:bg-slate-50/50 transition-colors bg-white">
                   <div className="flex-1 space-y-4">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="font-bold text-lg">{request.user.name}</h3>
-                        <p className="text-sm text-muted-foreground">{request.user.shop.name}</p>
+                        <h3 className="font-bold text-xl text-slate-900">{request.user.name}</h3>
+                        <p className="text-sm font-medium text-slate-500 mt-1">{request.user.shop.name}</p>
                       </div>
                       <Badge variant={
                         request.status === 'APPROVED' ? 'success' : 
                         request.status === 'REJECTED' ? 'danger' : 'warning'
-                      }>
+                      } className="uppercase tracking-wider font-bold">
                         {request.status}
                       </Badge>
                     </div>
 
-                    <div className="flex flex-wrap gap-4 text-sm bg-muted/50 p-3 rounded-lg">
+                    <div className="flex flex-wrap gap-4 text-sm bg-slate-50 p-4 rounded-xl border border-slate-100">
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-primary" />
-                        <span className="font-medium">{request.leaveType.name}</span>
-                        <Badge variant="outline" size="sm">{request.leaveType.isPaid ? 'Paid' : 'Unpaid'}</Badge>
+                        <FileText className="w-4 h-4 text-slate-400" />
+                        <span className="font-semibold text-slate-700">{request.leaveType.name}</span>
+                        <Badge variant="outline" size="sm" className="bg-white">{request.leaveType.isPaid ? 'Paid' : 'Unpaid'}</Badge>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-primary" />
+                      <div className="w-px h-4 bg-slate-200 hidden sm:block"></div>
+                      <div className="flex items-center gap-2 font-medium text-slate-600">
+                        <Calendar className="w-4 h-4 text-slate-400" />
                         <span>{new Date(request.startDate).toLocaleDateString()} to {new Date(request.endDate).toLocaleDateString()}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-primary" />
-                        <span className="font-medium">{request.totalDays} Day(s)</span>
+                      <div className="w-px h-4 bg-slate-200 hidden sm:block"></div>
+                      <div className="flex items-center gap-2 font-medium text-slate-600">
+                        <Clock className="w-4 h-4 text-slate-400" />
+                        <span className="font-bold text-slate-900">{request.totalDays} Day(s)</span>
                       </div>
                     </div>
 
-                    <div>
-                      <p className="text-sm font-medium mb-1">Reason provided:</p>
-                      <p className="text-sm text-muted-foreground italic border-l-2 pl-3 py-1">"{request.reason}"</p>
+                    <div className="bg-white">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Reason provided</p>
+                      <p className="text-sm text-slate-700 font-medium italic border-l-2 border-slate-300 pl-3">"{request.reason}"</p>
                     </div>
                     
                     {request.approverNote && (
-                      <div className="mt-2 text-sm bg-blue-50 text-blue-800 p-2 rounded border border-blue-100">
-                        <strong>Admin Note:</strong> {request.approverNote}
+                      <div className="mt-3 text-sm bg-blue-50 text-blue-800 p-3 rounded-xl border border-blue-100">
+                        <strong className="block mb-1 text-xs uppercase tracking-wider opacity-80">Admin Note:</strong> 
+                        {request.approverNote}
                       </div>
                     )}
                   </div>
 
-                  <div className="flex md:flex-col gap-2 items-end justify-center md:min-w-[140px] border-t md:border-t-0 md:border-l pt-4 md:pt-0 md:pl-6">
+                  <div className="flex md:flex-col gap-3 items-end justify-center md:min-w-[160px] border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-8">
                     {request.status === 'PENDING' ? (
                       <>
                         <Button 
-                          className="w-full bg-green-600 hover:bg-green-700" 
+                          className="w-full bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20 shadow-lg" 
                           onClick={() => handleReview(request.id, 'APPROVED')}
                           disabled={reviewMutation.isPending}
                         >
@@ -171,7 +174,7 @@ export default function AdminLeaveRequestsPage() {
                         </Button>
                         <Button 
                           variant="danger" 
-                          className="w-full" 
+                          className="w-full shadow-red-500/20 shadow-lg" 
                           onClick={() => handleReview(request.id, 'REJECTED')}
                           disabled={reviewMutation.isPending}
                         >

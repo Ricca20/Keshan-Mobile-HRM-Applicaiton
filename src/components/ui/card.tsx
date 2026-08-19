@@ -10,21 +10,21 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', hover = false, ...props }, ref) => {
     const variants = {
       default:
-        'bg-slate-900/80 border border-slate-800/50 backdrop-blur-sm',
+        'bg-white border border-slate-200 shadow-sm',
       glass:
-        'bg-white/5 border border-white/10 backdrop-blur-xl',
+        'bg-white/80 border border-slate-200/60 backdrop-blur-xl shadow-sm',
       gradient:
-        'bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700/50',
+        'bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-sm',
     }
 
     return (
       <div
         ref={ref}
         className={cn(
-          'rounded-2xl p-6 shadow-xl',
+          'rounded-2xl p-6',
           variants[variant],
           hover &&
-            'transition-all duration-300 hover:shadow-2xl hover:border-slate-700/80 hover:-translate-y-0.5',
+            'transition-all duration-300 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5',
           className
         )}
         {...props}
@@ -53,7 +53,7 @@ const CardTitle = forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn('text-lg font-semibold text-white tracking-tight', className)}
+    className={cn('text-lg font-semibold text-slate-900 tracking-tight', className)}
     {...props}
   />
 ))
@@ -65,7 +65,7 @@ const CardDescription = forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-slate-400', className)}
+    className={cn('text-sm text-slate-500', className)}
     {...props}
   />
 ))

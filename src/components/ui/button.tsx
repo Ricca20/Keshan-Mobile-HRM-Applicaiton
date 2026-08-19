@@ -25,15 +25,15 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-500 hover:to-violet-500 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 focus-visible:ring-indigo-500 active:scale-[0.98]',
+        'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/25 focus-visible:ring-blue-500 active:scale-[0.98]',
       secondary:
-        'bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700 focus-visible:ring-slate-500 active:scale-[0.98]',
+        'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 focus-visible:ring-slate-400 active:scale-[0.98]',
       danger:
-        'bg-gradient-to-r from-red-600 to-rose-600 text-white hover:from-red-500 hover:to-rose-500 shadow-lg shadow-red-500/25 focus-visible:ring-red-500 active:scale-[0.98]',
+        'bg-red-500 text-white hover:bg-red-600 shadow-md shadow-red-500/20 focus-visible:ring-red-500 active:scale-[0.98]',
       ghost:
-        'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 focus-visible:ring-slate-500',
+        'text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus-visible:ring-slate-400',
       outline:
-        'border border-slate-700 text-slate-300 hover:bg-slate-800/50 hover:text-slate-100 hover:border-slate-600 focus-visible:ring-slate-500 active:scale-[0.98]',
+        'border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-400 focus-visible:ring-slate-400 active:scale-[0.98]',
     }
 
     const sizes = {
