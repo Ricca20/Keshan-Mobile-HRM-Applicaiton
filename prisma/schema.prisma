@@ -1,0 +1,180 @@
+// PhoneShop HRM — Full Database Schema
+// All 8 models for the HRM system
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          Role      @default(EMPLOYEE)
+  isActive      Boolean   @default(true)
+  joinDate      DateTime  @default(now())
+  salary        Float     @default(0)
+  phone         String?
+  address       String?
+
+  shopId        String
+  shop          Shop      @relation(fields: [shopId], references: [id])
+
+  shifts        Shift[]
+  clockLogs     ClockLog[]
+  leaveRequests LeaveRequest[]
+  leaveBalances LeaveBalance[]
+  paySheets     PaySheet[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+model Shop {
+  id           String   @id @default(cuid())
+  name         String
+  address      String
+  locationLat  Float
+  locationLng  Float
+  allowedIp    String
+  radiusMeters Int      @default(100)
+
+  users        User[]
+  shifts       Shift[]
+  clockLogs    ClockLog[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Shift {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  shopId      String
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  date        DateTime @db.Date
+  startTime   String   // "08:00"
+  endTime     String   // "17:00"
+  notes       String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, date])
+}
+
+model ClockLog {
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  shopId       String
+  shop         Shop        @relation(fields: [shopId], references: [id])
+  type         ClockType
+  timestamp    DateTime    @default(now())
+  gpsLat       Float?
+  gpsLng       Float?
+  ipAddress    String
+  isValid      Boolean     @default(false)
+  flagReason   String?     // "GPS_FAIL" | "IP_FAIL" | "BOTH_FAIL" | null
+  overriddenBy String?     // admin userId who manually overrode
+  overrideNote String?
+
+  createdAt    DateTime    @default(now())
+}
+
+enum ClockType {
+  IN
+  OUT
+}
+
+model LeaveType {
+  id            String         @id @default(cuid())
+  name          String         @unique // "Annual", "Sick", "Casual", "No-Pay"
+  daysAllowed   Int            @default(14)
+  isPaid        Boolean        @default(true)
+  isActive      Boolean        @default(true)
+
+  leaveRequests LeaveRequest[]
+  leaveBalances LeaveBalance[]
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model LeaveBalance {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  leaveTypeId  String
+  leaveType    LeaveType @relation(fields: [leaveTypeId], references: [id])
+  year         Int
+  totalDays    Int
+  usedDays     Int       @default(0)
+
+  @@unique([userId, leaveTypeId, year])
+}
+
+model LeaveRequest {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  leaveTypeId  String
+  leaveType    LeaveType     @relation(fields: [leaveTypeId], references: [id])
+  startDate    DateTime      @db.Date
+  endDate      DateTime      @db.Date
+  totalDays    Int
+  reason       String
+  status       LeaveStatus   @default(PENDING)
+  approvedBy   String?
+  approverNote String?
+  reviewedAt   DateTime?
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PaySheet {
+  id            String         @id @default(cuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  month         Int            // 1–12
+  year          Int
+  baseSalary    Float
+  paidDays      Int
+  unpaidDays    Int
+  deductions    Float          @default(0)
+  bonuses       Float          @default(0)
+  deductionNote String?
+  bonusNote     String?
+  netPay        Float
+  status        PaySheetStatus @default(DRAFT)
+  finalizedAt   DateTime?
+  finalizedBy   String?
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@unique([userId, month, year])
+}
+
+enum PaySheetStatus {
+  DRAFT
+  FINALIZED
+}
