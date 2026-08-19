@@ -2,7 +2,7 @@ import { type HTMLAttributes, forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'outline'
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'outline' | 'destructive' | 'secondary'
   size?: 'sm' | 'md'
   dot?: boolean
   pulse?: boolean
@@ -20,6 +20,8 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       danger: 'bg-red-500/15 text-red-400 border-red-500/30',
       info: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
       outline: 'bg-transparent text-slate-400 border-slate-600',
+      destructive: 'bg-red-500/15 text-red-400 border-red-500/30',
+      secondary: 'bg-slate-800 text-slate-300 border-slate-700',
     }
 
     const dotColors = {
@@ -29,6 +31,8 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       danger: 'bg-red-400',
       info: 'bg-blue-400',
       outline: 'bg-slate-400',
+      destructive: 'bg-red-400',
+      secondary: 'bg-slate-400',
     }
 
     const sizes = {
