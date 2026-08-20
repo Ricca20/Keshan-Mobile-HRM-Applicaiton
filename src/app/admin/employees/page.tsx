@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { useToast } from '@/components/ui/toast'
+import { ConfirmModal } from '@/components/ui/modal'
 
 type Shop = {
   id: string
@@ -29,6 +31,12 @@ export default function AdminEmployeesPage() {
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [formData, setFormData] = useState<Partial<Employee> & { password?: string }>({})
   const [showForm, setShowForm] = useState(false)
+  const toast = useToast()
+  const [confirmState, setConfirmState] = useState<{ isOpen: boolean, id: string, currentStatus: boolean }>({
+    isOpen: false,
+    id: '',
+    currentStatus: true
+  })
 
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery<Employee[]>({
     queryKey: ['employees'],
@@ -68,9 +76,10 @@ export default function AdminEmployeesPage() {
       setShowForm(false)
       setIsEditing(null)
       setFormData({})
+      toast.success('Employee saved successfully')
     },
     onError: (err: any) => {
-      alert(err.message)
+      toast.error(err.message)
     }
   })
 
@@ -86,6 +95,10 @@ export default function AdminEmployeesPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] })
+      toast.success('Employee status updated')
+    },
+    onError: (err: any) => {
+      toast.error(err.message)
     }
   })
 
@@ -108,10 +121,12 @@ export default function AdminEmployeesPage() {
   }
 
   const handleToggleActive = (id: string, currentStatus: boolean) => {
-    const action = currentStatus ? 'deactivate' : 'reactivate'
-    if (confirm(`Are you sure you want to ${action} this employee?`)) {
-      toggleActiveMutation.mutate({ id, isActive: !currentStatus })
-    }
+    setConfirmState({ isOpen: true, id, currentStatus })
+  }
+
+  const onConfirmToggle = () => {
+    toggleActiveMutation.mutate({ id: confirmState.id, isActive: !confirmState.currentStatus })
+    setConfirmState(prev => ({ ...prev, isOpen: false }))
   }
 
   const handleAddNew = () => {
@@ -273,6 +288,17 @@ export default function AdminEmployeesPage() {
           )}
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={onConfirmToggle}
+        title={confirmState.currentStatus ? 'Deactivate Employee' : 'Reactivate Employee'}
+        description={`Are you sure you want to ${confirmState.currentStatus ? 'deactivate' : 'reactivate'} this employee?`}
+        confirmText={confirmState.currentStatus ? 'Deactivate' : 'Reactivate'}
+        variant={confirmState.currentStatus ? 'danger' : 'primary'}
+        isLoading={toggleActiveMutation.isPending}
+      />
     </div>
   )
 }

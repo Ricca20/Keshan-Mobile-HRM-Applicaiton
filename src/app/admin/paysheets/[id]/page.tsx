@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useState, useEffect } from 'react'
+import { useToast } from '@/components/ui/toast'
+import { ConfirmModal } from '@/components/ui/modal'
 
 export default function PaysheetDetailPage() {
   const { id } = useParams()
@@ -17,6 +19,8 @@ export default function PaysheetDetailPage() {
   const [deductions, setDeductions] = useState<number>(0)
   const [bonusNote, setBonusNote] = useState('')
   const [deductionNote, setDeductionNote] = useState('')
+  const toast = useToast()
+  const [isFinalizeModalOpen, setIsFinalizeModalOpen] = useState(false)
 
   const { data: ps, isLoading } = useQuery<any>({
     queryKey: ['paysheet', id],
@@ -51,9 +55,9 @@ export default function PaysheetDetailPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['paysheet', id] })
-      alert('Paysheet updated')
+      toast.success('Paysheet updated')
     },
-    onError: (err: any) => alert(err.message)
+    onError: (err: any) => toast.error(err.message)
   })
 
   const finalizeMutation = useMutation({
@@ -70,9 +74,10 @@ export default function PaysheetDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['paysheet', id] })
       queryClient.invalidateQueries({ queryKey: ['paysheets'] })
-      alert('Paysheet finalized!')
+      setIsFinalizeModalOpen(false)
+      toast.success('Paysheet finalized!')
     },
-    onError: (err: any) => alert(err.message)
+    onError: (err: any) => toast.error(err.message)
   })
 
   if (isLoading) {
@@ -222,11 +227,7 @@ export default function PaysheetDetailPage() {
               </p>
               <Button 
                 className="w-full bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 text-white font-bold h-12" 
-                onClick={() => {
-                  if (confirm('Are you sure you want to finalize this paysheet? This action cannot be undone.')) {
-                    finalizeMutation.mutate()
-                  }
-                }}
+                onClick={() => setIsFinalizeModalOpen(true)}
                 disabled={finalizeMutation.isPending || updateMutation.isPending}
               >
                 <CheckCircle2 className="w-5 h-5 mr-2" /> Finalize Paysheet
@@ -235,6 +236,17 @@ export default function PaysheetDetailPage() {
           )}
         </div>
       </div>
+
+      <ConfirmModal 
+        isOpen={isFinalizeModalOpen}
+        onClose={() => setIsFinalizeModalOpen(false)}
+        onConfirm={() => finalizeMutation.mutate()}
+        title="Finalize Paysheet"
+        description="Are you sure you want to finalize this paysheet? This action cannot be undone and will lock the paysheet from further edits."
+        confirmText="Finalize"
+        variant="primary"
+        isLoading={finalizeMutation.isPending}
+      />
     </div>
   )
 }

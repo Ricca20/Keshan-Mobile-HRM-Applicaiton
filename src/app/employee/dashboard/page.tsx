@@ -118,7 +118,7 @@ export default async function EmployeeDashboard() {
                     ? 'bg-emerald-100 text-emerald-700 group-hover:bg-emerald-200' 
                     : 'bg-blue-50 text-blue-600 group-hover:bg-blue-100'
                 }`}>
-                  {isClockedIn ? 'Ready to clock out?' : 'Ready to start your shift?'} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  {isClockedIn ? 'Ready to clock out?' : 'Ready to start work?'} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
             </div>
@@ -128,7 +128,7 @@ export default async function EmployeeDashboard() {
         {/* Info Grid (Takes up 2 columns on lg) */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
           
-          {/* Recent Shifts */}
+          {/* Recent Attendance */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-500 z-0"></div>
             <div className="relative z-10 flex flex-col h-full">

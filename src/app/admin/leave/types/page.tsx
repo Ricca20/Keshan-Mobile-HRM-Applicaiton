@@ -6,6 +6,7 @@ import { Plus, Edit2, Settings, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useToast } from '@/components/ui/toast'
 
 type LeaveType = {
   id: string
@@ -17,6 +18,7 @@ type LeaveType = {
 
 export default function LeaveTypesPage() {
   const queryClient = useQueryClient()
+  const toast = useToast()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingType, setEditingType] = useState<LeaveType | null>(null)
   
@@ -57,9 +59,10 @@ export default function LeaveTypesPage() {
       queryClient.invalidateQueries({ queryKey: ['leaveTypes'] })
       setIsModalOpen(false)
       setEditingType(null)
+      toast.success('Leave type saved successfully')
     },
     onError: (err: any) => {
-      alert(err.message)
+      toast.error(err.message)
     }
   })
 

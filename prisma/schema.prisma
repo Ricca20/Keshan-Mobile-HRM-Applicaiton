@@ -57,9 +57,9 @@ model Shop {
 model ClockLog {
   id           String      @id @default(cuid())
   userId       String
-  user         User        @relation(fields: [userId], references: [id])
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   shopId       String
-  shop         Shop        @relation(fields: [shopId], references: [id])
+  shop         Shop        @relation(fields: [shopId], references: [id], onDelete: Cascade)
   type         ClockType
   timestamp    DateTime    @default(now())
   ipAddress    String
@@ -93,9 +93,9 @@ model LeaveType {
 model LeaveBalance {
   id           String    @id @default(cuid())
   userId       String
-  user         User      @relation(fields: [userId], references: [id])
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   leaveTypeId  String
-  leaveType    LeaveType @relation(fields: [leaveTypeId], references: [id])
+  leaveType    LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
   year         Int
   totalDays    Int
   usedDays     Int       @default(0)
@@ -106,9 +106,9 @@ model LeaveBalance {
 model LeaveRequest {
   id           String        @id @default(cuid())
   userId       String
-  user         User          @relation(fields: [userId], references: [id])
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   leaveTypeId  String
-  leaveType    LeaveType     @relation(fields: [leaveTypeId], references: [id])
+  leaveType    LeaveType     @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
   startDate    DateTime      @db.Date
   endDate      DateTime      @db.Date
   totalDays    Int
@@ -131,7 +131,7 @@ enum LeaveStatus {
 model PaySheet {
   id            String         @id @default(cuid())
   userId        String
-  user          User           @relation(fields: [userId], references: [id])
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   month         Int            // 1–12
   year          Int
   baseSalary    Float
@@ -160,7 +160,7 @@ enum PaySheetStatus {
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   message   String
   type      String   // "LEAVE_REQUEST", "LEAVE_APPROVED", "LEAVE_REJECTED", "PAYROLL"
@@ -187,4 +187,14 @@ enum VerificationStatus {
   VERIFIED
   MISSED
   PENALIZED
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
 }

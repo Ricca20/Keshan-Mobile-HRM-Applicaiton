@@ -4,7 +4,7 @@ import { getDaysInMonth } from 'date-fns'
 /**
  * Calculates the number of valid clocked days for a user in a given month.
  */
-export async function countValidClockDays(userId: string, month: number, year: number): Promise<number> {
+async function countValidClockDays(userId: string, month: number, year: number): Promise<number> {
   const startOfMonth = new Date(year, month - 1, 1)
   const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999)
 

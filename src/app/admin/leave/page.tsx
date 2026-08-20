@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useToast } from '@/components/ui/toast'
+import { PromptModal } from '@/components/ui/modal'
 
 type LeaveRequest = {
   id: string
@@ -24,6 +26,13 @@ type LeaveRequest = {
 export default function AdminLeaveRequestsPage() {
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<'PENDING' | 'HISTORY'>('PENDING')
+  const toast = useToast()
+  
+  const [promptState, setPromptState] = useState<{ isOpen: boolean, id: string, status: 'APPROVED' | 'REJECTED' }>({
+    isOpen: false,
+    id: '',
+    status: 'APPROVED'
+  })
 
   const { data: requests = [], isLoading } = useQuery<LeaveRequest[]>({
     queryKey: ['leaveRequests', activeTab],
@@ -59,17 +68,20 @@ export default function AdminLeaveRequestsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leaveRequests'] })
+      toast.success('Leave request updated successfully')
     },
     onError: (err: any) => {
-      alert(err.message)
+      toast.error(err.message)
     }
   })
 
   const handleReview = (id: string, status: 'APPROVED' | 'REJECTED') => {
-    const note = prompt(`Enter optional note for ${status} (or leave blank):`)
-    if (note !== null) { // null means user clicked cancel
-      reviewMutation.mutate({ id, status, note })
-    }
+    setPromptState({ isOpen: true, id, status })
+  }
+
+  const handlePromptSubmit = (note: string) => {
+    reviewMutation.mutate({ id: promptState.id, status: promptState.status, note })
+    setPromptState(prev => ({ ...prev, isOpen: false }))
   }
 
   return (
@@ -200,6 +212,16 @@ export default function AdminLeaveRequestsPage() {
           )}
         </CardContent>
       </Card>
+
+      <PromptModal 
+        isOpen={promptState.isOpen}
+        onClose={() => setPromptState(prev => ({ ...prev, isOpen: false }))}
+        onSubmit={handlePromptSubmit}
+        title={`Note for ${promptState.status === 'APPROVED' ? 'Approval' : 'Rejection'}`}
+        description={`Enter an optional note explaining the ${promptState.status.toLowerCase()} (or leave blank):`}
+        placeholder="Type note here..."
+        submitText={promptState.status === 'APPROVED' ? 'Approve Request' : 'Reject Request'}
+      />
     </div>
   )
 }

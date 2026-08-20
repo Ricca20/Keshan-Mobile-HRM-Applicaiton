@@ -23,6 +23,7 @@ import {
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import Image from 'next/image'
 
 const navItems = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
@@ -64,11 +65,11 @@ export default function AdminLayout({
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-200">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500 shadow-md shadow-blue-500/20">
-              <Fingerprint className="w-5 h-5 text-white" />
+            <div className="relative w-12 h-12 rounded-xl bg-white shadow-sm border border-slate-200 overflow-hidden shrink-0">
+              <Image src="/images/logo.jpg" alt="PhoneShop HRM" fill sizes="48px" className="object-cover" />
             </div>
             <div>
-              <h1 className="font-bold text-slate-900 text-lg tracking-tight">
+              <h1 className="font-bold text-slate-900 text-lg tracking-tight leading-tight">
                 PhoneShop <span className="text-blue-500">HRM</span>
               </h1>
               <p className="text-[10px] text-slate-400 uppercase tracking-widest font-medium">

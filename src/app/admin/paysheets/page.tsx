@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
+import { useToast } from '@/components/ui/toast'
 
 type PaySheet = {
   id: string
@@ -23,6 +24,7 @@ export default function AdminPaysheetsPage() {
   const today = new Date()
   const [filterMonth, setFilterMonth] = useState(today.getMonth() + 1)
   const [filterYear, setFilterYear] = useState(today.getFullYear())
+  const toast = useToast()
 
   const { data: paysheets = [], isLoading } = useQuery<PaySheet[]>({
     queryKey: ['paysheets', filterMonth, filterYear],
@@ -45,10 +47,10 @@ export default function AdminPaysheetsPage() {
       return data
     },
     onSuccess: (data) => {
-      alert(data.message)
+      toast.success(data.message)
       queryClient.invalidateQueries({ queryKey: ['paysheets'] })
     },
-    onError: (err: any) => alert(err.message)
+    onError: (err: any) => toast.error(err.message)
   })
 
   const handleExport = () => {

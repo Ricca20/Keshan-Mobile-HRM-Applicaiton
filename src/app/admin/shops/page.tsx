@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { useToast } from '@/components/ui/toast'
+import { ConfirmModal } from '@/components/ui/modal'
 
 type Shop = {
   id: string
@@ -20,6 +22,11 @@ export default function AdminShopsPage() {
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [formData, setFormData] = useState<Partial<Shop>>({})
   const [showForm, setShowForm] = useState(false)
+  const toast = useToast()
+  const [confirmState, setConfirmState] = useState<{ isOpen: boolean, id: string }>({
+    isOpen: false,
+    id: ''
+  })
 
   const { data: shops = [], isLoading } = useQuery<Shop[]>({
     queryKey: ['shops'],
@@ -47,12 +54,14 @@ export default function AdminShopsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shops'] })
+      queryClient.invalidateQueries({ queryKey: ['shops'] })
       setShowForm(false)
       setIsEditing(null)
       setFormData({})
+      toast.success('Shop saved successfully')
     },
     onError: (err: any) => {
-      alert(err.message)
+      toast.error(err.message)
     }
   })
 
@@ -66,9 +75,10 @@ export default function AdminShopsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shops'] })
+      toast.success('Shop deleted successfully')
     },
     onError: (err: any) => {
-      alert(err.message)
+      toast.error(err.message)
     }
   })
 
@@ -84,9 +94,12 @@ export default function AdminShopsPage() {
   }
 
   const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this shop?')) {
-      deleteMutation.mutate(id)
-    }
+    setConfirmState({ isOpen: true, id })
+  }
+
+  const onConfirmDelete = () => {
+    deleteMutation.mutate(confirmState.id)
+    setConfirmState(prev => ({ ...prev, isOpen: false }))
   }
 
   const handleAddNew = () => {
@@ -217,6 +230,17 @@ export default function AdminShopsPage() {
           )}
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={onConfirmDelete}
+        title="Delete Shop"
+        description="Are you sure you want to delete this shop? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   )
 }

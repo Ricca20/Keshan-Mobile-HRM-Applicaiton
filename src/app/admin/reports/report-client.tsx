@@ -4,17 +4,16 @@ import { useState } from 'react'
 import { Download, FileSpreadsheet, TrendingUp, Users, CalendarDays } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts'
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
 type ReportClientProps = {
-  shopStats: any[]
-  leaveStats: any[]
   attendanceStats: any[]
+  employeeNames: string[]
 }
 
-export function ReportClient({ shopStats, leaveStats, attendanceStats }: ReportClientProps) {
+export function ReportClient({ attendanceStats, employeeNames }: ReportClientProps) {
   const today = new Date()
   const [filterMonth, setFilterMonth] = useState(today.getMonth() + 1)
   const [filterYear, setFilterYear] = useState(today.getFullYear())
@@ -26,66 +25,7 @@ export function ReportClient({ shopStats, leaveStats, attendanceStats }: ReportC
   return (
     <div className="space-y-6">
       
-      {/* Analytics Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* Shop Employee Distribution */}
-        <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-500" />
-              <CardTitle className="text-lg font-bold text-slate-900">Employees per Shop</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6 h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={shopStats} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                <RechartsTooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                <Bar dataKey="employees" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Leave Requests Breakdown */}
-        <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <div className="flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-amber-500" />
-              <CardTitle className="text-lg font-bold text-slate-900">Leave Requests Status</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6 h-[300px] flex items-center justify-center">
-            {leaveStats.length === 0 ? (
-              <p className="text-slate-400 text-sm">No leave requests found.</p>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={leaveStats}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {leaveStats.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={
-                        entry.name === 'APPROVED' ? '#10b981' : 
-                        entry.name === 'PENDING' ? '#f59e0b' : '#ef4444'
-                      } />
-                    ))}
-                  </Pie>
-                  <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-6">
 
         {/* Attendance Trends */}
         <Card className="border-slate-200 shadow-sm overflow-hidden bg-white lg:col-span-2">
@@ -100,9 +40,21 @@ export function ReportClient({ shopStats, leaveStats, attendanceStats }: ReportC
               <LineChart data={attendanceStats} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} allowDecimals={false} />
-                <RechartsTooltip cursor={{ stroke: '#f1f5f9', strokeWidth: 2 }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                <Line type="monotone" dataKey="clockIns" name="Clock Ins" stroke="#10b981" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => `${val}h`} />
+                <RechartsTooltip cursor={{ stroke: '#f1f5f9', strokeWidth: 2 }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} formatter={(value: any) => [`${value} hrs`, undefined]} />
+                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
+                {employeeNames.map((name, idx) => (
+                  <Line 
+                    key={name}
+                    type="monotone" 
+                    dataKey={name} 
+                    name={name} 
+                    stroke={COLORS[idx % COLORS.length]} 
+                    strokeWidth={3} 
+                    dot={{ r: 4, strokeWidth: 2 }} 
+                    activeDot={{ r: 6 }} 
+                  />
+                ))}
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

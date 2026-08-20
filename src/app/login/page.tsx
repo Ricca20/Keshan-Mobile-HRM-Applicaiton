@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Fingerprint, ShieldCheck } from 'lucide-react'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -51,8 +52,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md animate-fade-in relative z-10">
         {/* Logo & Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500 shadow-lg shadow-blue-500/25 mb-4">
-            <Fingerprint className="w-8 h-8 text-white" />
+          <div className="relative inline-block w-20 h-20 rounded-2xl bg-white shadow-lg shadow-slate-200/50 mb-4 overflow-hidden border border-slate-100">
+            <Image src="/images/logo.jpg" alt="PhoneShop HRM" fill sizes="80px" className="object-cover" />
           </div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
             PhoneShop <span className="text-blue-500">HRM</span>
@@ -77,16 +78,23 @@ export default function LoginPage() {
               autoFocus
             />
 
-            <Input
-              id="password"
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
+            <div>
+              <Input
+                id="password"
+                label="Password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+              <div className="flex justify-end mt-1">
+                <a href="/forgot-password" className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline transition-colors">
+                  Forgot Password?
+                </a>
+              </div>
+            </div>
 
             {error && (
               <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
