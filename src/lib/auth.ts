@@ -14,26 +14,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-          include: { shop: true },
-        })
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email as string },
+            include: { shop: true },
+          })
 
-        if (!user || !user.isActive) return null
+          if (!user) throw new Error('Debug: User not found in database for email: ' + credentials.email)
+          if (!user.isActive) throw new Error('Debug: User is not active.')
 
-        const passwordMatch = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        )
-        if (!passwordMatch) return null
+          const passwordMatch = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          )
+          if (!passwordMatch) throw new Error('Debug: Password does not match hash. Input: ' + credentials.password)
 
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          shopId: user.shopId,
-        } as any
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            shopId: user.shopId,
+          } as any
+        } catch (e: any) {
+          console.error("AUTHORIZE ERROR:", e)
+          throw e
+        }
       },
     }),
   ],

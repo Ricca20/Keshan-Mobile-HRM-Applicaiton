@@ -28,7 +28,7 @@ export default function LoginPage() {
       })
 
       if (res?.error) {
-        setError('Invalid email or password. Please try again.')
+        setError('Login Error: ' + res.error)
       } else {
         router.push('/')
         router.refresh()
