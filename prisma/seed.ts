@@ -158,6 +158,45 @@ async function main() {
     }
   })
 
+  // 10. Create Notifications (5 rows)
+  console.log('🔔 Creating Notifications...')
+  const notificationsData = [
+    { userId: employees[0].id, title: 'Leave Approved', message: 'Your leave request for Family event was approved.', type: 'LEAVE_APPROVED', isRead: false },
+    { userId: employees[1].id, title: 'Leave Rejected', message: 'Your leave request was rejected due to staff shortage.', type: 'LEAVE_REJECTED', isRead: true },
+    { userId: admin.id, title: 'New Leave Request', message: 'Kamal Perera requested 1 day of leave.', type: 'LEAVE_REQUEST', isRead: false },
+    { userId: employees[2].id, title: 'Paysheet Generated', message: 'Your paysheet for this month is ready to view.', type: 'PAYROLL', isRead: false },
+    { userId: employees[3].id, title: 'System Maintenance', message: 'The HR system will be down for 2 hours tonight.', type: 'SYSTEM', isRead: true },
+  ]
+  for (const n of notificationsData) {
+    await prisma.notification.create({ data: n })
+  }
+
+  // 11. Create Work Verifications (5 rows)
+  console.log('✅ Creating Work Verifications...')
+  const verificationsData = [
+    { userId: employees[0].id, status: 'VERIFIED', sentAt: new Date(Date.now() - 3600000), expiresAt: new Date(Date.now() - 3420000), verifiedAt: new Date(Date.now() - 3500000) },
+    { userId: employees[1].id, status: 'MISSED', sentAt: new Date(Date.now() - 7200000), expiresAt: new Date(Date.now() - 7020000), verifiedAt: null },
+    { userId: employees[2].id, status: 'VERIFIED', sentAt: new Date(Date.now() - 10800000), expiresAt: new Date(Date.now() - 10620000), verifiedAt: new Date(Date.now() - 10700000) },
+    { userId: employees[3].id, status: 'PENALIZED', sentAt: new Date(Date.now() - 86400000), expiresAt: new Date(Date.now() - 86220000), verifiedAt: null },
+    { userId: employees[0].id, status: 'PENDING', sentAt: new Date(), expiresAt: new Date(Date.now() + 180000), verifiedAt: null },
+  ] as any[]
+  for (const v of verificationsData) {
+    await prisma.workVerification.create({ data: v })
+  }
+
+  // 12. Create Password Reset Tokens (5 rows)
+  console.log('🔑 Creating Password Reset Tokens...')
+  const resetTokensData = [
+    { email: employees[0].email, token: 'token-123', expiresAt: new Date(Date.now() + 3600000) },
+    { email: employees[1].email, token: 'token-456', expiresAt: new Date(Date.now() - 3600000) }, // Expired
+    { email: employees[2].email, token: 'token-789', expiresAt: new Date(Date.now() + 3600000) },
+    { email: admin.email, token: 'token-abc', expiresAt: new Date(Date.now() + 3600000) },
+    { email: employees[3].email, token: 'token-xyz', expiresAt: new Date(Date.now() - 86400000) }, // Expired
+  ]
+  for (const t of resetTokensData) {
+    await prisma.passwordResetToken.create({ data: t })
+  }
+
   console.log('\n🎉 Comprehensive Seed Complete!')
   console.log('\n📋 Login credentials:')
   console.log('   Admin: owner@phoneshop.lk / changeme123')
